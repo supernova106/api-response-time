@@ -21,8 +21,12 @@ type AccessLog struct {
 	Time        time.Time     `bson:"time"`
 }
 
+type AccessLogs []AccessLog
+
 // AccesslogSummary
 type AccessLogSummary struct {
-	APIName         string  `json:"apiname" bson:"apiname"`
+	APIName         string  `json:"_id" bson:"_id"`
 	AvgResponseTime float64 `bson:"avgresponsetime"`
 }
+
+type AccessLogSummaries []AccessLogSummary

@@ -1,58 +1,37 @@
 package main
 
 import (
-	"net/http"
-	"os"
-
+	"api-response-time/app/config"
 	"api-response-time/app/db"
 	"api-response-time/app/handlers"
+	"api-response-time/app/middlewares"
 	"github.com/gin-gonic/gin"
 	"log"
 )
 
-const (
-	// Port at which the server starts listening
-	Port = "8080"
-)
-
-var mdb *db.DB
-
 func main() {
-	// Creates a gin router with default middleware:
-	// logger and recovery (crash-free) middleware
-	var err error
-	mdb, err = db.Connect()
+	// Load config
+	cfg, err := config.Load(".env")
 	if err != nil {
-		log.Fatalf("%v", err)
+		log.Fatalf("Can't load .env file %v", err)
 		return
 	}
 
+	// connect DB
+	db.Connect(cfg.MongoDBUrl)
+
+	// Creates a gin router with default middleware:
+	// logger and recovery (crash-free) middleware
+
 	router := gin.Default()
 
-	router.Use(injectDependencyServices())
-	router.GET("/api", accesslog.List)
+	// Middlewares
+	router.Use(middlewares.Connect)
+	router.Use(middlewares.ErrorHandler)
 
-	// This handler will match /user/john but will not match neither /user/ or /user
-	router.GET("/api/:apiname", func(c *gin.Context) {
-		apiname := c.Param("apiname")
-		c.String(http.StatusOK, "Hello %s", apiname)
-	})
+	router.GET("/api", accesslog.GetAll)
 
 	// By default it serves on :8080 unless a
 	// API_PORT environm+nt variable was defined.
-	port := os.Getenv("API_PORT")
-
-	if len(port) == 0 {
-		port = Port
-	}
-
-	router.Run(":" + port)
-	// router.Run(":3000") for a hard coded port
-}
-
-func injectDependencyServices() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Set("mdb", mdb)
-		c.Next()
-	}
+	router.Run(":" + cfg.Port)
 }

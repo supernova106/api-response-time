@@ -1,28 +1,38 @@
 package accesslog
 
 import (
-	"api-response-time/app/db"
 	"api-response-time/app/models"
 	"github.com/gin-gonic/gin"
-	//	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"strconv"
+	"time"
 )
 
 // List all accesslog
-func List(c *gin.Context) {
-	db := c.MustGet("mdb").(*db.DB)
+func GetAll(c *gin.Context) {
+	db := c.MustGet("mdb").(*mgo.Database)
+	apiName := c.DefaultQuery("apiname", "all")
+	timeRange := c.DefaultQuery("time", "3")
+	timeint, _ := strconv.ParseInt((timeRange), 10, 64)
+	accessLogSummaries := models.AccessLogSummaries{}
+	now := time.Now()
+	timestamp := now.Add(-time.Duration(timeint) * time.Minute)
 
-	d := db.Copy()
-	defer d.Close()
+	var operations []bson.M
 
-	//accessLog := models.AccessLog{}
-	//query := bson.M{"user_ip": "184.72.68.45"}
-	//_ = d.FindOne(CollectionAccessLog, query, &accessLog)
-	accessLogSummary := models.AccessLogSummary{}
-	o1 := []bson.M{"$match": bson.M{"time": bson.M{"$gt": bson.Now()}}}
-	o2 := []bson.M{"$group": bson.M{"_id": "$apiname", "avgResponseTime": bson.M{"$avg": "$request_time"}}}
-	operations := []bson.M{o1, o2}
-	_ = d.Pipe("nginx", operations, &accessLogSummary)
-	c.JSON(200, accessLogSummary)
+	if apiName == "all" {
+		operations = []bson.M{
+			{"$match": bson.M{"time": bson.M{"$gt": timestamp}}},
+			{"$group": bson.M{"_id": "$apiname", "avgresponsetime": bson.M{"$avg": "$request_time"}}},
+		}
+	} else {
+		operations = []bson.M{
+			{"$match": bson.M{"time": bson.M{"$gt": timestamp}, "apiname": apiName}},
+			{"$group": bson.M{"_id": "$apiname", "avgresponsetime": bson.M{"$avg": "$request_time"}}},
+		}
+	}
 
+	_ = db.C(models.CollectionAccessLog).Pipe(operations).All(&accessLogSummaries)
+	c.JSON(200, accessLogSummaries)
 }

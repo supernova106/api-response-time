@@ -27,4 +27,11 @@ WORKDIR $GOPATH
 RUN apt-get install -y git
 RUN go get -u gopkg.in/mgo.v2 && \
 	go get -u github.com/gin-gonic/gin && \
-	go get -u go get github.com/tools/godep
+	go get -u github.com/tools/godep \
+	go get -u github.com/joho/godotenv
+
+WORKDIR $GOPATH/src/api-response-time/app
+RUN chmod +x script/*
+RUN ./script/build
+
+CMD ./app
