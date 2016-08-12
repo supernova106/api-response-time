@@ -5,7 +5,8 @@
 
 ##Usage
 - /api
-- /api?apiname=razerotp?time=5
+- /api?apiname=razerotp&time=5
+- /api?apiname=oauth2&time=10&status=true
 
 ##Contact
 - Binh Nguyen

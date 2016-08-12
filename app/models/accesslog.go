@@ -30,3 +30,10 @@ type AccessLogSummary struct {
 }
 
 type AccessLogSummaries []AccessLogSummary
+
+type StatusCodeSummary struct {
+	Code  string `json:"_id" bson:"_id"`
+	Count int64  `bson:"count"`
+}
+
+type StatusCodeSummaries []StatusCodeSummary

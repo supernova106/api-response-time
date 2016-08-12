@@ -29,6 +29,8 @@ func main() {
 	router.Use(middlewares.Connect)
 	router.Use(middlewares.ErrorHandler)
 
+	router.GET("/", accesslog.Check)
+
 	router.GET("/api", accesslog.GetAll)
 
 	// By default it serves on :8080 unless a
