@@ -16,7 +16,7 @@ type AccessLog struct {
 	UserIp      string        `json:"user_ip" bson:"user_ip"`
 	APIName     string        `json:"apiname" bson:"apiname"`
 	Request     string        `json:"request" bson:"request"`
-	Code        string        `json:"code" bson:"code"`
+	Code        int64         `json:"code" bson:"code"`
 	RequestTime float64       `bson:"request_time"`
 	Time        time.Time     `bson:"time"`
 }
@@ -32,8 +32,8 @@ type AccessLogSummary struct {
 type AccessLogSummaries []AccessLogSummary
 
 type StatusCodeSummary struct {
-	Code  string `json:"_id" bson:"_id"`
-	Count int64  `bson:"count"`
+	Code  int64 `json:"_id" bson:"_id"`
+	Count int64 `bson:"count"`
 }
 
 type StatusCodeSummaries []StatusCodeSummary

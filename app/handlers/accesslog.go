@@ -38,12 +38,12 @@ func GetAll(c *gin.Context) {
 		accessLogSummaries := models.AccessLogSummaries{}
 		if apiName == "all" {
 			operations = []bson.M{
-				{"$match": bson.M{"time": bson.M{"$gt": timestamp}}},
+				{"$match": bson.M{"time": bson.M{"$gt": timestamp}, "code": bson.M{"$lt": 500}}},
 				{"$group": bson.M{"_id": "$apiname", "avgresponsetime": bson.M{"$avg": "$request_time"}}},
 			}
 		} else {
 			operations = []bson.M{
-				{"$match": bson.M{"apiname": apiName, "time": bson.M{"$gt": timestamp}}},
+				{"$match": bson.M{"apiname": apiName, "time": bson.M{"$gt": timestamp}, "code": bson.M{"$lt": 500}}},
 				{"$group": bson.M{"_id": "$apiname", "avgresponsetime": bson.M{"$avg": "$request_time"}}},
 			}
 		}
