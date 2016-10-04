@@ -37,3 +37,10 @@ type StatusCodeSummary struct {
 }
 
 type StatusCodeSummaries []StatusCodeSummary
+
+type RequestRateSummary struct {
+	APIName string `json:"_id" bson:"_id"`
+	Count   int64  `bson:"count"`
+}
+
+type RequestRateSummaries []RequestRateSummary

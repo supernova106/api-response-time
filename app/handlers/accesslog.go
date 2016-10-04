@@ -22,18 +22,38 @@ func GetAll(c *gin.Context) {
 
 	var operations []bson.M
 
-	if status == "true" {
-		if apiName == "all" {
-			c.JSON(400, gin.H{"status_code": 400, "error_msg": "apiname is not specified"})
-			return
-		}
+	if status == "code" {
 		statusCodeSummaries := models.StatusCodeSummaries{}
-		operations = []bson.M{
-			{"$match": bson.M{"apiname": apiName, "time": bson.M{"$gt": timestamp}}},
-			{"$group": bson.M{"_id": "$code", "count": bson.M{"$sum": 1}}},
+		if apiName == "all" {
+			operations = []bson.M{
+				{"$match": bson.M{"time": bson.M{"$gt": timestamp}}},
+				{"$group": bson.M{"_id": "$code", "count": bson.M{"$sum": 1}}},
+			}
+		} else {
+			operations = []bson.M{
+				{"$match": bson.M{"apiname": apiName, "time": bson.M{"$gt": timestamp}}},
+				{"$group": bson.M{"_id": "$code", "count": bson.M{"$sum": 1}}},
+			}
 		}
+
 		_ = db.C(models.CollectionAccessLog).Pipe(operations).All(&statusCodeSummaries)
 		c.JSON(200, statusCodeSummaries)
+	} else if status == "rate" {
+		requestRateSummaries := models.RequestRateSummaries{}
+		if apiName == "all" {
+			operations = []bson.M{
+				{"$match": bson.M{"time": bson.M{"$gt": timestamp}}},
+				{"$group": bson.M{"_id": "$apiname", "count": bson.M{"$sum": 1}}},
+			}
+		} else {
+			operations = []bson.M{
+				{"$match": bson.M{"apiname": apiName, "time": bson.M{"$gt": timestamp}}},
+				{"$group": bson.M{"_id": "$apiname", "count": bson.M{"$sum": 1}}},
+			}
+		}
+
+		_ = db.C(models.CollectionAccessLog).Pipe(operations).All(&requestRateSummaries)
+		c.JSON(200, requestRateSummaries)
 	} else {
 		accessLogSummaries := models.AccessLogSummaries{}
 		if apiName == "all" {
