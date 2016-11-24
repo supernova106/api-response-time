@@ -7,16 +7,17 @@ import (
 
 const (
 	// MongoDB collection
-	CollectionAccessLog = "nginx"
+	CollectionAccessLog = "traefik"
 )
 
 // AccessLog model
 type AccessLog struct {
 	Id          bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	UserIp      string        `json:"user_ip" bson:"user_ip"`
-	APIName     string        `json:"apiname" bson:"apiname"`
-	Request     string        `json:"request" bson:"request"`
 	Code        int64         `json:"code" bson:"code"`
+	APIName     string        `json:"apiname" bson:"apiname"`
+	Backend     string        `json:"backend" bson:"backend"`
+	Request     string        `json:"request" bson:"request"`
 	RequestTime float64       `bson:"request_time"`
 	Time        time.Time     `bson:"time"`
 }
